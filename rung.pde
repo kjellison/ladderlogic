@@ -3,24 +3,33 @@ class rung {
   float rungpositiony;
   int rungid;
   ArrayList<element> elements = new ArrayList<element>();
+  int rungpos;
   
   rung(int irungid) {
     rungid = irungid;
-    rungpositiony = tablepositiony+elementsize*rungid;
+    rungpositiony = tablepositiony+elementsize*rungpos;
     for (int i = 0; i < maxelements; i++) {
-      elements.add( new element((rungid*20)+i, rungid,i));
+      elements.add( new element((rungid*maxelements)+i, rungid,i, i));
+    }
+  }
+  
+  void updateDrawLocation(int irungpos) {
+    rungpos = irungpos;
+    rungpositiony = tablepositiony+elementsize*rungpos;
+    for (int i = 0; i < elements.size(); i++) {
+      element tempelem = elements.get(i);
+      tempelem.rungdraw = rungpos;
     }
   }
   
   void drawRung() {
     fill(255);
-    //line(tablepositionx, tablepositiony+(rungid*elementsize), tablepositionx+tablesizex, tablepositiony+(rungid*elementsize));
     textSize(12);
     text(str(rungid), rungpositionx-20, rungpositiony+elementsize/2);
-    if (rungid ==0) {
-      for (int i =0; i < elements.size(); i++) {
+    if (rungpos == 0) {
+      for (int i = 0; i < elements.size(); i++) {
         
-        text(str(i), tablepositionx+i*elementsize+elementsize/2, tablepositiony-10);
+        text(str(i), tablepositionx+i*elementsize+elementsize/2-5, tablepositiony-10);
       }
     }
   }

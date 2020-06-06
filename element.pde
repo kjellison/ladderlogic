@@ -19,18 +19,20 @@ class element {
   rung thisrung, aboverung, belowrung;
   element nextelement, previouselement, aboveelement, belowelement;
   ArrayList<element> attachedelements = new ArrayList<element>();
+  int rungdraw;
 
-
-  element(int ielementid, int irungloc, int ielementpos) {
+  element(int ielementid, int irungloc, int ielementpos, int irungdraw) {
     elementid = ielementid;
     rungloc = irungloc;
     elementpos = ielementpos;
+    rungdraw = irungdraw;
     positionx = tablepositionx + elementsize*elementpos;
-    positiony = tablepositiony + elementsize*rungloc;
+    positiony = tablepositiony + elementsize*rungdraw;
   }
 
   void drawElement() {
-    nodeCheck();
+    positiony = tablepositiony + elementsize*rungdraw;
+    //nodeCheck();
     if (selected) {
       fillcolor = selectedcolor;
       if (hasCursor()) {
@@ -41,26 +43,34 @@ class element {
     } else {
       fillcolor = idlecolor;
     }
-    if (type == 0) {
+    switch (type) {
+      case 0:
       drawBlank(positionx, positiony, elementsize, elementsize, fillcolor, false);
-    } else if (type == 1) {
+      break;
+      case 1:
       drawWire(positionx, positiony, elementsize, elementsize, fillcolor, false);
-    } else if (type == 2) {
+      break;
+      case 2:
       drawNOC(positionx, positiony, elementsize, elementsize, energized, fillcolor, false);
-    } else if (type == 3) {
+      break;
+      case 3:
       drawNCC(positionx, positiony, elementsize, elementsize, energized, fillcolor, false);
-    } else if (type == 4) {
+      break;
+      case 4:
       drawCoil(positionx, positiony, elementsize, elementsize, energized, fillcolor, false);
-    } else if (type == 5) {
+      break;
+      case 5:
       drawBnchDn(positionx, positiony, elementsize, elementsize, fillcolor, false);
-    } else if (type == 6) {
+      break;
+      case 6:
       drawBnchUp(positionx, positiony, elementsize, elementsize, fillcolor, false);
     }
-    if (type > 1) {
+    if ((type > 1) && (type < 5)) {
       fill(0,255,0);
-      textSize(10);
+      textSize((height/175)*3-4);
+      textAlign(LEFT, CENTER);
       text(str(rungloc), positionx, positiony+10);
-      text(str(elementpos), positionx+elementsize-12, positiony+10);
+      text(str(elementpos), positionx+elementsize-((height/175)*3), positiony+10);
     }
   }
 
@@ -243,6 +253,7 @@ class element {
         ielem.detachElement(this, true);
         attachedelements.remove(i);
         } else {
+          tempelem.energized = false;
           attachedelements.remove(i);
         }
       }

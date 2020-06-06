@@ -38,30 +38,58 @@ class button {
       }
     }
 
-    if (type == 0) {
-      drawBlank(positionx, positiony, sizex, sizey, fillcolor, true);
-    } else if (type == 1) {
-      drawWire(positionx, positiony, sizex, sizey, fillcolor, true);
-    } else if (type == 2) {
-      drawNOC(positionx, positiony, sizex, sizey, false, fillcolor, true);
-    } else if (type == 3) {
-      drawNCC(positionx, positiony, sizex, sizey, false, fillcolor, true);
-    } else if (type == 4) {
-      drawCoil(positionx, positiony, sizex, sizey, false, fillcolor, true);
-    } else if (type == 5) {
-      drawBnchDn(positionx, positiony, sizex, sizey, fillcolor, true);
-    } else if (type == 6) {
-      drawBnchUp(positionx, positiony, sizex, sizey, fillcolor, true);
-    } else if (type == 7) {
-      drawAttachCoil(positionx, positiony, sizex, sizey, fillcolor, true);
-    } else if (type == 8) {
-      drawInput(positionx, positiony, sizex, sizey, fillcolor, true, num);
-    } else if (type == 9) {
-      drawInputAttach(positionx, positiony, sizex, sizey, fillcolor, true);
-    } else if (type == 10) {
-      drawInputDetach(positionx, positiony, sizex, sizey, fillcolor, true);
-    } else if (type == 11) {
-      drawInputDetachAll(positionx, positiony, sizex, sizey, fillcolor, true);
+    switch (type) {
+      case 0: 
+        drawBlank(positionx, positiony, sizex, sizey, fillcolor, true);
+        break;
+      case 1: 
+        drawWire(positionx, positiony, sizex, sizey, fillcolor, true);
+        break;
+      case 2: 
+        drawNOC(positionx, positiony, sizex, sizey, false, fillcolor, true);
+        break;
+      case 3: 
+        drawNCC(positionx, positiony, sizex, sizey, false, fillcolor, true);
+        break;
+      case 4: 
+        drawCoil(positionx, positiony, sizex, sizey, false, fillcolor, true);
+        break;
+      case 5: 
+        drawBnchDn(positionx, positiony, sizex, sizey, fillcolor, true);
+        break;
+      case 6: 
+        drawBnchUp(positionx, positiony, sizex, sizey, fillcolor, true);
+        break;
+      case 7: 
+        drawAttachCoil(positionx, positiony, sizex, sizey, fillcolor, true);
+        break;
+      case 8: 
+        drawInput(positionx, positiony, sizex, sizey, fillcolor, true, num);
+        break;
+      case 9: 
+        drawInputAttach(positionx, positiony, sizex, sizey, fillcolor, true);
+        break;
+      case 10: 
+        drawInputDetach(positionx, positiony, sizex, sizey, fillcolor, true);
+        break;
+      case 11: 
+        drawInputDetachAll(positionx, positiony, sizex, sizey, fillcolor, true);
+        break;
+      case 12: 
+        drawClearEverything(positionx, positiony, sizex, sizey, fillcolor, true);
+        break;
+      case 13: 
+        drawAddRung(positionx, positiony, sizex, sizey, fillcolor, true);
+        break;
+      case 14: 
+        drawRemoveRung(positionx, positiony, sizex, sizey, fillcolor, true);
+        break;
+      case 15: 
+        drawScrollUp(positionx, positiony, sizex, sizey, fillcolor, true);
+        break;
+      case 16: 
+        drawScrollDown(positionx, positiony, sizex, sizey, fillcolor, true);
+        break;
     }
   }
   

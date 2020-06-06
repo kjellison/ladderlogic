@@ -31,6 +31,8 @@ class debug {
       rect(debugposx, debugposy, debugsizex, debugsizey);
       fill(255,0,0);
       textSize(10);
+      text("VisInd: "+str(visiblerungsindex), debugposx, debugposy+debugsizey/2);
+      text("MaxInd: "+str(visiblerungsmaxindex), debugposx, debugposy+debugsizey/2+10);
       for (int i = 0; i < selectedelements.size(); i++) {
         element tempelem = selectedelements.get(i);
         text("Engzd: " + str(tempelem.energized), debugposx+5, debugposy+10+ i*80);
