@@ -1,5 +1,5 @@
 /*
-  Ladder Logic Simulator V3.2
+  Ladder Logic Simulator V3.3
  June 2020
  By: Kelly Jellison - kelly.jellison@gmail.com
  
@@ -11,13 +11,14 @@
  V3.0 added scrollable ladder table which makes it infinately more useful.
  V3.1 fixed element nodes and energized states not updating unless on screen
  V3.2 cleaned up code(a bit), adjusted draw dimensions to be relative for resizing 16:9 AR
+ V3.3 added coil labels (need to get text box working)
  
- TODO:   Labels - Add a label to a coil or input and any contacts attached should have that same label
+ TODO:   Labels - Add a label to an input and any contacts attached should have that same label
  Outputs - "Y" Output indicators, able to attach to a coil to see its state at all times
  Input toggle toggle - Change whether an input is "toggled" or "momentary"
  Save/Load - Write out a table of rungs/elements with a key for attachments.
  */
-float version = 3.2;
+float version = 3.3;
 float tableborderpositionx;
 float tableborderpositiony;
 float tablebordersizex;
@@ -44,13 +45,16 @@ float inputpanelsizey;
 float buttonsizex;
 float buttonsizey;
 float elementsize;
+float labelpanelpositionx;
+float labelpanelpositiony;
+float labelpanelsizex;
+float labelpanelsizey;
 float w = 1600, h = 900;
 int maxvisiblerungs = 10;
 int maxelements = 17;
 int visiblerungsindex = 0;
 int visiblerungsmaxindex = 0;
-String saved = "";
-String typing = "";
+String labeltext = "";
 int strlngth;
 
 ArrayList<rung> rungs = new ArrayList<rung>();
@@ -59,6 +63,7 @@ ArrayList<element> selectedelements = new ArrayList<element>();
 ArrayList<button> inputstoggledon = new ArrayList<button>();
 ArrayList<rung> visiblerungs = new ArrayList<rung>();
 button wirebutton, nocbutton, nccbutton, coilbutton, bnchdnbutton, bnchupbutton, blankbutton, attachcoilbutton, attachinputbutton, detachinputbutton, detachallinputbutton, cleareverythingbutton, addrungbutton, removerungbutton, scrollupbutton, scrolldownbutton;
+textbox labelinput;
 debug deb;
 
 void setup() {
@@ -79,9 +84,9 @@ void setup() {
   elementsize = (tablesizex-60)/20+8;
   //CONTROL PANEL ----------------------------------------------------
   controlpanelsizex = width-boundaryspace*2;
-  controlpanelsizey = (height-tablebordersizey-boundaryspace*3);
+  controlpanelsizey = (height-tablebordersizey-boundaryspace*3-(height/12));
   controlpanelpositionx = boundaryspace;
-  controlpanelpositiony = height-controlpanelsizey-boundaryspace;
+  controlpanelpositiony = height-controlpanelsizey-boundaryspace-(height/12);
   buttonsizex = controlpanelsizex/12;
   buttonsizey = controlpanelsizey/2;
   //COIL INFORMATION PANEL -------------------------------------------
@@ -94,6 +99,12 @@ void setup() {
   inputpanelpositiony = boundaryspace;
   inputpanelsizex = width-tablebordersizex-(width/3)/2-boundaryspace*2;
   inputpanelsizey = tablebordersizey;
+  //LABEL PANEL SETUP-------------------------------------------------
+  labelpanelpositionx = boundaryspace;
+  labelpanelpositiony = boundaryspace*3+tablesizey+controlpanelsizey;
+  labelpanelsizex = width-boundaryspace*2;
+  labelpanelsizey = height-boundaryspace*4-controlpanelsizey-tablesizey;
+  labelinput = new textbox(labelpanelpositionx, labelpanelpositiony, labelpanelsizex, labelpanelsizey, "Label");
   //BUTTON SETUP------------------------------------------------------
   scrollupbutton = new button(controlpanelpositionx+buttonsizex*0, controlpanelpositiony, controlpanelsizex/12, controlpanelsizey/2, 15, 0);
   scrolldownbutton = new button(controlpanelpositionx+buttonsizex*0, controlpanelpositiony+controlpanelsizey/2, controlpanelsizex/12, controlpanelsizey/2, 16, 0);
@@ -134,7 +145,7 @@ void draw() {
   }
   getSelected();
   getInputs();
-  deb.debugUpdate();  
+  deb.debugUpdate();
   //DRAW WINDOW-------------------------------------------------------
   fill(0);
   stroke(0);
@@ -190,6 +201,7 @@ void draw() {
     button tempbutton = inputbuttons.get(i);
     tempbutton.drawButton();
   }
+  labelinput.drawTextBox();
   deb.debugDraw();
 }
 
@@ -252,6 +264,9 @@ void mousePressed() {
   if (scrolldownbutton.hasCursor()) {
     scrollDown();
   }
+  if (labelinput.labelbutton.hasCursor()) {
+    labelinput.isactive = true;
+  }
   if (attachinputbutton.hasCursor()) {
     for (int i = 0; i < selectedelements.size(); i++) {
       element tempelem = selectedelements.get(i);
@@ -301,28 +316,36 @@ void mousePressed() {
 }
 
 void keyPressed() {
-  /*
-  if (key == ' ') {
-   for (int i = 0; i < selectedelements.size(); i++) {
-   element tempelem = selectedelements.get(i);
-   tempelem.selected = false;
-   }
-   }
-   */
-   // NEED TO MAKE A TEXTBOX OBJECT THAT USES THIS FUNCTION
-  if ((key == ENTER) || (key == RETURN )) {
-    saved = typing;
-    println(saved);
-    typing = "";
-  } else if (key == BACKSPACE) {
-    strlngth = typing.length();
-    typing = typing.substring(0, strlngth-1);
+  if (!labelinput.isactive) {
+    if (key == ' ') {
+      for (int i = 0; i < selectedelements.size(); i++) {
+        element tempelem = selectedelements.get(i);
+        tempelem.selected = false;
+      }
+    }
   } else {
-    typing = typing+key;
+    if ((key == ENTER) || (key == RETURN )) {
+      labeltext = labelinput.stringReturn();
+      labelCoil(labeltext);
+      labelinput.isactive = false;
+    } else if (key == BACKSPACE) {
+      labelinput.backSpace();
+    } else {
+      labelinput.typedLetter(str(key));
+    }
   }
 }
 
 //FUNCTIONS-------------------------------------------------------------
+
+void labelCoil(String ilabel) {
+  for (int i = 0; i < selectedelements.size(); i++) {
+    element tempelem = selectedelements.get(i);
+    if (tempelem.type == 4) {
+      tempelem.addCoilLabel(ilabel);
+    }
+  }
+}
 
 void changeSelected(int type) {
   for (int i = 0; i < rungs.size(); i++) {
@@ -341,12 +364,16 @@ void changeSelected(int type) {
 
 void getSelected() {
   selectedelements.clear();
+  labelinput.coilselected = false;
   for (int i = 0; i < rungs.size(); i++) {
     rung temprung = rungs.get(i);
     for (int j = 0; j < temprung.elements.size(); j++) {
       element tempelem = temprung.elements.get(j);
       if (tempelem.selected) {
         selectedelements.add(tempelem);
+        if (tempelem.type == 4) {
+          labelinput.coilselected = true;
+        }
       }
     }
   }
@@ -685,6 +712,21 @@ void drawScrollDown(float posx, float posy, float sizex, float sizey, color fill
   rect(posx+sizex/3, posy, sizex/3, sizey/2);
 }
 
+void drawTextButton(float posx, float posy, float sizex, float sizey, color fillcolor, boolean border, String buttontext) {
+  fill(fillcolor);
+  if (border) {
+    stroke(255);
+  } else {
+    stroke(0);
+  }
+  rect(posx, posy, sizex, sizey);
+  stroke(255);
+  fill(255);
+  textAlign(CENTER, CENTER);
+  textSize(sizey);
+  text(buttontext, posx+sizex/2, posy+sizey/2-sizey/8);
+}
+
 void drawCoilInfoPanel() {
   int numeric = 0;
   for (int i = 0; i < selectedelements.size(); i++) {
@@ -693,7 +735,11 @@ void drawCoilInfoPanel() {
       fill(0, 255, 0);
       textSize((height/175)*3);
       textAlign(LEFT, CENTER);
-      text("Coil " +str(tempelem.rungloc)+":"+str(tempelem.elementpos)+" is attached to:", coilinfopanelpositionx+boundaryspace, 12+coilinfopanelpositiony+50*numeric);
+      if (tempelem.label != "") {
+        text("Coil " +tempelem.label+" is attached to:", coilinfopanelpositionx+boundaryspace, 12+coilinfopanelpositiony+50*numeric);
+      } else {
+        text("Coil " +str(tempelem.rungloc)+":"+str(tempelem.elementpos)+" is attached to:", coilinfopanelpositionx+boundaryspace, 12+coilinfopanelpositiony+50*numeric);
+      }
       for (int j = 0; j < tempelem.attachedelements.size(); j++) {
         element tempattach = tempelem.attachedelements.get(j);
         if (j < 4) {

@@ -20,6 +20,7 @@ class element {
   element nextelement, previouselement, aboveelement, belowelement;
   ArrayList<element> attachedelements = new ArrayList<element>();
   int rungdraw;
+  String label;
 
   element(int ielementid, int irungloc, int ielementpos, int irungdraw) {
     elementid = ielementid;
@@ -44,33 +45,32 @@ class element {
       fillcolor = idlecolor;
     }
     switch (type) {
-      case 0:
+    case 0:
       drawBlank(positionx, positiony, elementsize, elementsize, fillcolor, false);
       break;
-      case 1:
+    case 1:
       drawWire(positionx, positiony, elementsize, elementsize, fillcolor, false);
       break;
-      case 2:
+    case 2:
       drawNOC(positionx, positiony, elementsize, elementsize, energized, fillcolor, false);
       break;
-      case 3:
+    case 3:
       drawNCC(positionx, positiony, elementsize, elementsize, energized, fillcolor, false);
       break;
-      case 4:
+    case 4:
       drawCoil(positionx, positiony, elementsize, elementsize, energized, fillcolor, false);
       break;
-      case 5:
+    case 5:
       drawBnchDn(positionx, positiony, elementsize, elementsize, fillcolor, false);
       break;
-      case 6:
+    case 6:
       drawBnchUp(positionx, positiony, elementsize, elementsize, fillcolor, false);
     }
     if ((type > 1) && (type < 5)) {
-      fill(0,255,0);
+      fill(0, 255, 0);
       textSize((height/175)*3-4);
       textAlign(LEFT, CENTER);
-      text(str(rungloc), positionx, positiony+10);
-      text(str(elementpos), positionx+elementsize-((height/175)*3), positiony+10);
+      text(label, positionx, positiony+10);
     }
   }
 
@@ -138,7 +138,7 @@ class element {
         }
       }
     }
-    
+
     if (!haspreviouselement) {
       leftnode = false;
     }
@@ -242,6 +242,7 @@ class element {
   }
 
   void attachElement(element ielem) {
+    ielem.label = label;
     attachedelements.add(ielem);
   }
 
@@ -250,8 +251,8 @@ class element {
       element tempelem = attachedelements.get(i);
       if (tempelem.elementid == ielem.elementid) {
         if (!recurs) {
-        ielem.detachElement(this, true);
-        attachedelements.remove(i);
+          ielem.detachElement(this, true);
+          attachedelements.remove(i);
         } else {
           tempelem.energized = false;
           attachedelements.remove(i);
@@ -261,9 +262,30 @@ class element {
   }
 
   void detachAll() {
+    removeCoilLabel();
     for (int i = 0; i < attachedelements.size(); i++) {
       element tempelem = attachedelements.get(i);
       tempelem.detachElement(this, false);
+    }
+  }
+
+  void addCoilLabel(String ilabel) {
+    if (type == 4) {
+      label = ilabel;
+      for (int i = 0; i < attachedelements.size(); i++) {
+        element tempelem = attachedelements.get(i);
+        tempelem.label = label;
+      }
+    } else {
+      println("Tried to add a label to a non-coil element");
+    }
+  }
+  
+  void removeCoilLabel() {
+    label = "";
+    for (int i = 0; i < attachedelements.size(); i++) {
+        element tempelem = attachedelements.get(i);
+        tempelem.label = label;
     }
   }
 }

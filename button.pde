@@ -12,7 +12,7 @@ class button {
   color fillcolor;
   boolean ison;
   ArrayList<element> attachedelements = new ArrayList<element>();
-
+  String buttontext;
 
   button(float ipositionx, float ipositiony, float isizex, float isizey, int itype, int inum) {
     positionx = ipositionx;
@@ -22,7 +22,10 @@ class button {
     type = itype;
     num = inum;
   }
-
+  void textVar(String ibuttontext) {
+    buttontext = ibuttontext;
+  }
+  
   void drawButton() {
     if (ison) {
       if (hasCursor()) {
@@ -90,6 +93,8 @@ class button {
       case 16: 
         drawScrollDown(positionx, positiony, sizex, sizey, fillcolor, true);
         break;
+      case 17:
+        drawTextButton(positionx, positiony, sizex, sizey, fillcolor, true, buttontext);
     }
   }
   
