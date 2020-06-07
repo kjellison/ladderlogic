@@ -33,7 +33,8 @@ class element {
 
   void drawElement() {
     positiony = tablepositiony + elementsize*rungdraw;
-    while (!understoodandagreed) {}
+    while (!understoodandagreed) {
+    }
     //nodeCheck();
     if (selected) {
       fillcolor = selectedcolor;
@@ -66,6 +67,13 @@ class element {
       break;
     case 6:
       drawBnchUp(positionx, positiony, elementsize, elementsize, fillcolor, false);
+      break;
+    case 7:
+      drawCross(positionx, positiony, elementsize, elementsize, fillcolor, false);
+      break;
+    case 8:
+      drawVert(positionx, positiony, elementsize, elementsize, fillcolor, false);
+      break;
     }
     if ((type > 1) && (type < 5)) {
       fill(0, 255, 0);
@@ -143,7 +151,9 @@ class element {
     if (!haspreviouselement) {
       leftnode = false;
     }
-
+    if (elementpos == 0) {
+      leftnode = true;
+    }
     switch(type) {
     case 0: //BLANK
       topnode = false;
@@ -154,10 +164,10 @@ class element {
     case 1: //WIRE
       topnode = false;
       bottomnode = false;
-      if (elementpos == 0) {
-        leftnode = true;
-      }
       rightnode = leftnode;
+      if (hasnextelement) {
+        nextelement.leftnode = rightnode;
+      }
       break;
     case 2: //NOC
       topnode = false;
@@ -167,6 +177,9 @@ class element {
       } else {
         rightnode = false;
       }
+      if (hasnextelement) {
+        nextelement.leftnode = rightnode;
+      }
       break;
     case 3: //NCC
       topnode = false;
@@ -175,6 +188,9 @@ class element {
         rightnode = false;
       } else {
         rightnode = leftnode;
+      }
+      if (hasnextelement) {
+        nextelement.leftnode = rightnode;
       }
       break;
     case 4: //COIL
@@ -194,7 +210,9 @@ class element {
           tempelem.energized = false;
         }
       }
-
+      if (hasnextelement) {
+        nextelement.leftnode = rightnode;
+      }
       break;
     case 5: //BRANCHDOWN
       topnode = false;
@@ -202,13 +220,14 @@ class element {
         rightnode = leftnode | bottomnode;
         bottomnode = leftnode;
         if (hasbelowelement) {
-          if (belowelement.type == 6) {
-            belowelement.topnode = leftnode | belowelement.leftnode;
-          }
+          belowelement.topnode = leftnode | belowelement.leftnode;
         }
       } else {
         rightnode = bottomnode;
         leftnode = false;
+      }
+      if (hasnextelement) {
+        nextelement.leftnode = rightnode;
       }
       break;
     case 6: //BRANCHUP
@@ -217,19 +236,50 @@ class element {
         rightnode = leftnode | topnode;
         topnode = leftnode;
         if (hasaboveelement) {
-          if (aboveelement.type == 5) {
             aboveelement.bottomnode = leftnode | aboveelement.leftnode;
-          }
         }
       } else {
         rightnode = topnode;
         leftnode = false;
       }
-    }
-    if (type != 0) {
       if (hasnextelement) {
         nextelement.leftnode = rightnode;
       }
+    case 7://CROSS
+      if (haspreviouselement) {
+        if (hasaboveelement) {
+          rightnode = leftnode || topnode;
+          bottomnode = leftnode || topnode;
+        } else {
+          rightnode = leftnode;
+          bottomnode = leftnode;
+        }
+      } else {
+        if (hasaboveelement) {
+          bottomnode = topnode;
+          rightnode = topnode;
+        } else {
+          bottomnode = rightnode;
+        }
+      }
+      if (hasnextelement) {
+        nextelement.leftnode = rightnode;
+      }
+      if (hasbelowelement) {
+        belowelement.topnode = bottomnode;
+      }
+      break;
+    case 8://VERT
+      leftnode = false;
+      rightnode = false;
+      bottomnode = topnode;
+      if (hasbelowelement) {
+        belowelement.topnode = bottomnode;
+      }
+      if (hasnextelement) {
+        nextelement.leftnode = rightnode;
+      }
+      break;
     }
   }
 
@@ -281,12 +331,12 @@ class element {
       println("Tried to add a label to a non-coil element");
     }
   }
-  
+
   void removeCoilLabel() {
     label = "";
     for (int i = 0; i < attachedelements.size(); i++) {
-        element tempelem = attachedelements.get(i);
-        tempelem.label = label;
+      element tempelem = attachedelements.get(i);
+      tempelem.label = label;
     }
   }
 }

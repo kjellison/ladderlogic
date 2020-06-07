@@ -1,6 +1,6 @@
-float version = 3.4;
+float version = 3.5;
 /*
-  Ladder Logic Simulator V3.4
+  Ladder Logic Simulator V3.5
  June 2020
  By: Kelly Jellison - kelly.jellison@gmail.com
  
@@ -14,6 +14,7 @@ float version = 3.4;
  V3.2 cleaned up code(a bit), adjusted draw dimensions to be relative for resizing 16:9 AR
  V3.3 added coil labels
  V3.4 added input labels
+ V3.5 fixed some label issues, added cross and vertical, removed scroll buttons(use mousewheel)
  
  TODO:
  Outputs - "Y" Output indicators, able to attach to a coil to see its state at all times
@@ -72,7 +73,7 @@ ArrayList<button> inputbuttons = new ArrayList<button>();
 ArrayList<element> selectedelements = new ArrayList<element>();
 ArrayList<button> inputstoggledon = new ArrayList<button>();
 ArrayList<rung> visiblerungs = new ArrayList<rung>();
-button wirebutton, nocbutton, nccbutton, coilbutton, bnchdnbutton, bnchupbutton, blankbutton, attachcoilbutton, attachinputbutton, detachinputbutton, detachallinputbutton, cleareverythingbutton, addrungbutton, removerungbutton, scrollupbutton, scrolldownbutton;
+button wirebutton, nocbutton, nccbutton, coilbutton, bnchdnbutton, bnchupbutton, blankbutton, attachcoilbutton, attachinputbutton, detachinputbutton, detachallinputbutton, cleareverythingbutton, addrungbutton, removerungbutton, crossbutton, vertbutton;
 textbox labelinput;
 debug deb;
 
@@ -116,8 +117,8 @@ void setup() {
   labelpanelsizey = height-boundaryspace*4-controlpanelsizey-tablesizey;
   labelinput = new textbox(labelpanelpositionx, labelpanelpositiony, labelpanelsizex, labelpanelsizey, "Label");
   //BUTTON SETUP------------------------------------------------------
-  scrollupbutton = new button(controlpanelpositionx+buttonsizex*0, controlpanelpositiony, controlpanelsizex/12, controlpanelsizey/2, 15, 0);
-  scrolldownbutton = new button(controlpanelpositionx+buttonsizex*0, controlpanelpositiony+controlpanelsizey/2, controlpanelsizex/12, controlpanelsizey/2, 16, 0);
+  crossbutton = new button(controlpanelpositionx+buttonsizex*0, controlpanelpositiony, controlpanelsizex/12, controlpanelsizey/2, 18, 0);
+  vertbutton = new button(controlpanelpositionx+buttonsizex*0, controlpanelpositiony+controlpanelsizey/2, controlpanelsizex/12, controlpanelsizey/2, 19, 0);
   wirebutton = new button(controlpanelpositionx+buttonsizex*1, controlpanelpositiony, controlpanelsizex/12, controlpanelsizey/2, 1, 0);
   nocbutton = new button(controlpanelpositionx+buttonsizex*2, controlpanelpositiony, controlpanelsizex/12, controlpanelsizey/2, 2, 0);
   nccbutton = new button(controlpanelpositionx+buttonsizex*3, controlpanelpositiony, controlpanelsizex/12, controlpanelsizey/2, 3, 0);
@@ -138,7 +139,7 @@ void setup() {
   //INITIALIZE--------------------------------------------------------
   rungs.add(new rung(0));
   visiblerungs.add(rungs.get(0));
-  deb = new debug(false);
+  deb = new debug(true);
 }
 
 void draw() {
@@ -205,8 +206,8 @@ void draw() {
   attachinputbutton.drawButton();
   detachinputbutton.drawButton();
   detachallinputbutton.drawButton();
-  scrollupbutton.drawButton();
-  scrolldownbutton.drawButton();
+  crossbutton.drawButton();
+  vertbutton.drawButton();
   for (int i = 0; i < inputbuttons.size(); i++) {
     button tempbutton = inputbuttons.get(i);
     tempbutton.drawButton();
@@ -268,11 +269,11 @@ void mousePressed() {
   if (removerungbutton.hasCursor()) {
     removeRung();
   }
-  if (scrollupbutton.hasCursor()) {
-    scrollUp();
+  if (crossbutton.hasCursor()) {
+    changeSelected(7);
   }
-  if (scrolldownbutton.hasCursor()) {
-    scrollDown();
+  if (vertbutton.hasCursor()) {
+    changeSelected(8);
   }
   if (labelinput.labelbutton.hasCursor()) {
     labelinput.isactive = true;
@@ -298,6 +299,7 @@ void mousePressed() {
           if (tempselelem == inpelem) {
             tempinp.detachElement(tempselelem);
             tempselelem.energized = false;
+            tempselelem.label ="";
           }
         }
       }
@@ -355,8 +357,9 @@ void keyPressed() {
 
 void labelInput(String ilabel) {
   for (int i = 0; i < inputstoggledon.size(); i++) {
-    button tempbut = inputbuttons.get(i);
+    button tempbut = inputstoggledon.get(i);
     tempbut.addInputLabel(ilabel);
+    tempbut.ison = false;
   }
 }
 
@@ -591,6 +594,31 @@ void drawBnchUp(float posx, float posy, float sizex, float sizey, color fillcolo
   stroke(255);
   line(posx, posy+sizey/2, posx+sizex, posy+sizey/2);
   line(posx+sizex/2, posy+sizey/2, posx+sizex/2, posy);
+}
+
+void drawCross(float posx, float posy, float sizex, float sizey, color fillcolor, boolean border) {
+  fill(fillcolor);
+  if (border) {
+    stroke(255);
+  } else {
+    stroke(0);
+  }
+  rect(posx, posy, sizex, sizey);
+  stroke(255);
+  line(posx, posy+sizey/2, posx+sizex, posy+sizey/2);
+  line(posx+sizex/2, posy, posx+sizex/2, posy+sizey);
+}
+
+void drawVert(float posx, float posy, float sizex, float sizey, color fillcolor, boolean border) {
+  fill(fillcolor);
+  if (border) {
+    stroke(255);
+  } else {
+    stroke(0);
+  }
+  rect(posx, posy, sizex, sizey);
+  stroke(255);
+  line(posx+sizex/2, posy, posx+sizex/2, posy+sizey);
 }
 
 void drawAttachCoil(float posx, float posy, float sizex, float sizey, color fillcolor, boolean border) {

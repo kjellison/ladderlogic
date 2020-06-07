@@ -96,6 +96,13 @@ class button {
         break;
       case 17:
         drawTextButton(positionx, positiony, sizex, sizey, fillcolor, true, buttontext);
+        break;
+      case 18:
+        drawCross(positionx, positiony, sizex, sizey, fillcolor, true);
+        break;
+      case 19:
+        drawVert(positionx, positiony, sizex, sizey, fillcolor, true);
+        break;
     }
   }
   
