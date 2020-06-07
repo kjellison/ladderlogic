@@ -2,7 +2,7 @@ class debug {
 
   boolean enabled;
   ArrayList<element> selectedelements = new ArrayList<element>();
-  float debugposx = 10;
+  float debugposx = 120;
   float debugposy = 10;
   float debugsizex = 120;
   float debugsizey = 400;
@@ -31,6 +31,7 @@ class debug {
       rect(debugposx, debugposy, debugsizex, debugsizey);
       fill(255,0,0);
       textSize(10);
+      textAlign(LEFT, CENTER);
       text("VisInd: "+str(visiblerungsindex), debugposx, debugposy+debugsizey/2);
       text("MaxInd: "+str(visiblerungsmaxindex), debugposx, debugposy+debugsizey/2+10);
       for (int i = 0; i < selectedelements.size(); i++) {

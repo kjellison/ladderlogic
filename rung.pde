@@ -24,7 +24,8 @@ class rung {
   
   void drawRung() {
     fill(255);
-    textSize(12);
+    textSize((height/175)*3-4);
+    textAlign(LEFT, CENTER);
     text(str(rungid), rungpositionx-20, rungpositiony+elementsize/2);
     if (rungpos == 0) {
       for (int i = 0; i < elements.size(); i++) {
