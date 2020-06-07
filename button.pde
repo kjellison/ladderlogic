@@ -13,6 +13,7 @@ class button {
   boolean ison;
   ArrayList<element> attachedelements = new ArrayList<element>();
   String buttontext;
+  String inputlabel = "";
 
   button(float ipositionx, float ipositiony, float isizex, float isizey, int itype, int inum) {
     positionx = ipositionx;
@@ -67,7 +68,7 @@ class button {
         drawAttachCoil(positionx, positiony, sizex, sizey, fillcolor, true);
         break;
       case 8: 
-        drawInput(positionx, positiony, sizex, sizey, fillcolor, true, num);
+        drawInput(positionx, positiony, sizex, sizey, fillcolor, true, num, inputlabel);
         break;
       case 9: 
         drawInputAttach(positionx, positiony, sizex, sizey, fillcolor, true);
@@ -100,6 +101,7 @@ class button {
   
   void attachElement(element ielem) {
     attachedelements.add(ielem);
+    ielem.label = inputlabel;
   }
   
   void detachElement(element ielem) {
@@ -112,6 +114,7 @@ class button {
   }
 
   void detachAll() {
+    removeInputLabel();
     attachedelements.clear();
   }
   
@@ -120,6 +123,26 @@ class button {
     for (int i = 0; i < attachedelements.size(); i++) {
       element tempelem = attachedelements.get(i);
       tempelem.energized = ison;
+    }
+  }
+  
+  void addInputLabel(String ilabel) {
+    if (type == 8) {
+      inputlabel = ilabel;
+      for (int i = 0; i < attachedelements.size(); i++) {
+        element tempelem = attachedelements.get(i);
+        tempelem.label = inputlabel;
+      }
+    } else {
+      println("Tried to add a label to a input button");
+    }
+  }
+  
+  void removeInputLabel() {
+    inputlabel = "";
+    for (int i = 0; i < attachedelements.size(); i++) {
+        element tempelem = attachedelements.get(i);
+        tempelem.label = inputlabel;
     }
   }
 

@@ -46,7 +46,10 @@ class textbox {
         fill(255);
         rect(positionx+40+sizex/12, positiony+sizey/4, sizex/3, sizey/2);
         fill(0);
-        text(typedtext, positionx+40+sizex/12, positiony+sizey/4, sizex/3, sizey/2);
+        stroke(0);
+        textSize(sizey/2);
+        textAlign(LEFT, CENTER);
+        text(typedtext, positionx+40+sizex/12, positiony+sizey/4+15);
       }
     }
   }

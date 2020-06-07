@@ -33,6 +33,7 @@ class element {
 
   void drawElement() {
     positiony = tablepositiony + elementsize*rungdraw;
+    while (!understoodandagreed) {}
     //nodeCheck();
     if (selected) {
       fillcolor = selectedcolor;

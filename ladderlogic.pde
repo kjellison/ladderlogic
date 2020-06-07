@@ -1,5 +1,6 @@
+float version = 3.4;
 /*
-  Ladder Logic Simulator V3.3
+  Ladder Logic Simulator V3.4
  June 2020
  By: Kelly Jellison - kelly.jellison@gmail.com
  
@@ -11,14 +12,20 @@
  V3.0 added scrollable ladder table which makes it infinately more useful.
  V3.1 fixed element nodes and energized states not updating unless on screen
  V3.2 cleaned up code(a bit), adjusted draw dimensions to be relative for resizing 16:9 AR
- V3.3 added coil labels (need to get text box working)
+ V3.3 added coil labels
+ V3.4 added input labels
  
- TODO:   Labels - Add a label to an input and any contacts attached should have that same label
+ TODO:
  Outputs - "Y" Output indicators, able to attach to a coil to see its state at all times
  Input toggle toggle - Change whether an input is "toggled" or "momentary"
  Save/Load - Write out a table of rungs/elements with a key for attachments.
+
+ 
+ 
+ For non-commercial, not-for-profit, non-private, educational purposes only!
  */
-float version = 3.3;
+boolean understoodandagreed = false;
+
 float tableborderpositionx;
 float tableborderpositiony;
 float tablebordersizex;
@@ -56,6 +63,9 @@ int visiblerungsindex = 0;
 int visiblerungsmaxindex = 0;
 String labeltext = "";
 int strlngth;
+boolean coilselected = false;
+boolean inputselected = false;
+
 
 ArrayList<rung> rungs = new ArrayList<rung>();
 ArrayList<button> inputbuttons = new ArrayList<button>();
@@ -326,7 +336,12 @@ void keyPressed() {
   } else {
     if ((key == ENTER) || (key == RETURN )) {
       labeltext = labelinput.stringReturn();
-      labelCoil(labeltext);
+      if (coilselected) {
+        labelCoil(labeltext);
+      }
+      if (inputselected) {
+        labelInput(labeltext);
+      }
       labelinput.isactive = false;
     } else if (key == BACKSPACE) {
       labelinput.backSpace();
@@ -337,6 +352,13 @@ void keyPressed() {
 }
 
 //FUNCTIONS-------------------------------------------------------------
+
+void labelInput(String ilabel) {
+  for (int i = 0; i < inputstoggledon.size(); i++) {
+    button tempbut = inputbuttons.get(i);
+    tempbut.addInputLabel(ilabel);
+  }
+}
 
 void labelCoil(String ilabel) {
   for (int i = 0; i < selectedelements.size(); i++) {
@@ -364,6 +386,7 @@ void changeSelected(int type) {
 
 void getSelected() {
   selectedelements.clear();
+  coilselected = false;
   labelinput.coilselected = false;
   for (int i = 0; i < rungs.size(); i++) {
     rung temprung = rungs.get(i);
@@ -373,18 +396,24 @@ void getSelected() {
         selectedelements.add(tempelem);
         if (tempelem.type == 4) {
           labelinput.coilselected = true;
+          coilselected = true;
         }
       }
     }
+  }
+  while (!understoodandagreed) {
   }
 }
 
 void getInputs() {
   inputstoggledon.clear();
+  inputselected = false;
   for (int i = 0; i < inputbuttons.size(); i++) {
     button tempbutton = inputbuttons.get(i);
     if (tempbutton.ison) {
       inputstoggledon.add(tempbutton);
+      labelinput.coilselected = true;
+      inputselected = true;
     }
   }
 }
@@ -578,7 +607,7 @@ void drawAttachCoil(float posx, float posy, float sizex, float sizey, color fill
   triangle(posx+sizex, posy, posx+sizex/2, posy+sizey/2, posx+sizex, posy+sizey);
 }
 
-void drawInput(float posx, float posy, float sizex, float sizey, color fillcolor, boolean border, int number) {
+void drawInput(float posx, float posy, float sizex, float sizey, color fillcolor, boolean border, int number, String ilabel) {
   fill(fillcolor);
   if (border) {
     stroke(255);
@@ -586,11 +615,15 @@ void drawInput(float posx, float posy, float sizex, float sizey, color fillcolor
     stroke(0);
   }
   rect(posx, posy, sizex, sizey);
+  //I hope you didn't bypass the understood and agreed loops.
   stroke(255);
   fill(255);
   textAlign(CENTER, CENTER);
   textSize(int(sizex/2));
-  text("X"+str(number), posx+sizex/2, posy+sizey/2);
+  text("X"+str(number), posx+sizex/2, posy+sizey/2-10);
+  textSize((int(sizex/2)/2));
+  textAlign(CENTER, BOTTOM);
+  text(ilabel, posx+sizex/2, posy+sizey);
   rectMode(CORNER);
 }
 
