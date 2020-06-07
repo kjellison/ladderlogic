@@ -20,12 +20,12 @@ float version = 4.0;
  TODO:
  Outputs - "Y" Output indicators, able to attach to a coil to see its state at all times
  Input toggle toggle - Change whether an input is "toggled" or "momentary"
-
+ 
  
  
  For non-commercial, not-for-profit, non-private, educational purposes only!
  */
-boolean understoodandagreed = false;
+boolean understoodandagreed = true;
 
 float tableborderpositionx;
 float tableborderpositiony;
@@ -219,9 +219,20 @@ void draw() {
 void saveState() {
   String filename = ("test.txt");
   savefile = createWriter(filename);
-  //GET DATA
+  //GET SETUP DATA
   int numberofrungs = rungs.size();
+  int numberofcoils = 0;
   savefile.println(str(numberofrungs));
+  for (int i = 0; i < rungs.size(); i++) {
+    rung temprung = rungs.get(i);
+    for (int j = 0; j < temprung.elements.size(); j++) {
+      element tempelem = temprung.elements.get(j);
+      if (tempelem.type == 4) {
+        numberofcoils++;
+      }
+    }
+  }
+  //GET ELEMENT MAP
   for (int i = 0; i < rungs.size(); i++) {
     rung temprung = rungs.get(i);
     for (int j = 0; j < temprung.elements.size(); j++) {
@@ -234,6 +245,45 @@ void saveState() {
       }
     }
   }
+  savefile.println(str(numberofcoils));
+  //GET COIL DATA
+  for (int i = 0; i < rungs.size(); i++) {
+    rung temprung = rungs.get(i);
+    for (int j = 0; j < temprung.elements.size(); j++) {
+      element tempelem = temprung.elements.get(j);
+      if (tempelem.type == 4) {
+        savefile.println(str(tempelem.rungloc)+":"+str(tempelem.elementpos));
+        savefile.println(tempelem.label);
+        for (int k = 0; k < tempelem.attachedelements.size(); k++) {
+          element tempatt = tempelem.attachedelements.get(k);
+          if (k < tempelem.attachedelements.size()-1) {
+            savefile.print(str(tempatt.rungloc)+":"+str(tempatt.elementpos)+"-");
+          }
+          if (k == tempelem.attachedelements.size()-1) {
+            savefile.println(str(tempatt.rungloc)+":"+str(tempatt.elementpos));
+          }
+        }
+        if (tempelem.attachedelements.size() == 0) {
+          savefile.println("0");
+        }
+      }
+    }
+  }
+  //GET INPUT DATA
+  for (int i = 0; i < inputbuttons.size(); i++) {
+    button tempbut = inputbuttons.get(i);
+    savefile.println(i);
+    savefile.println(tempbut.inputlabel);
+    int numberofattachedinp = tempbut.attachedelements.size();
+    savefile.println(numberofattachedinp);
+    for (int j = 0; j < numberofattachedinp; j++) {
+      element attelem = tempbut.attachedelements.get(j);
+      savefile.println(str(attelem.rungloc)+":"+str(attelem.elementpos));
+    }
+    if (numberofattachedinp == 0) {
+      savefile.println("0");
+    }
+  }
   savefile.flush();
   savefile.close();
 }
@@ -241,31 +291,52 @@ void saveState() {
 void loadState() {
   rungs.clear();
   String[] loadfile = loadStrings("test.txt");
+  int numberofrungs = 0;
+  int numberofcoils = 0;
+  int coilstartline = 0;
+  int coilendline = 0;
+  int inputstartline = 0;
+  int inputendline = 0;
+  int inputindex = 0;
+  int[] inputattached = new int[8];
+  String[] elemtype = new String[maxelements];
+  //GET SETUP DATA
   for (int i = 0; i < loadfile.length-1; i++) {
     String tempstr = loadfile[i];
-    println(tempstr);
-    if (tempstr == null) {
-      break;
-    }
     if (i == 0) {
-      println("Adding Rungs...");
-      for (int j = 1; j < int(tempstr); j++) {
-        rungs.add(new rung(j-1));
-        println(rungs.size());
-      }
+      numberofrungs = int(tempstr);
     }
-    if (i > 0) {
-      println("Adding Elements...");
-      int[] elems = int(split(tempstr, ':'));
-      println(str(elems));
-      rung temprung = rungs.get(i-1);
-      for (int j = 0; j < temprung.elements.size(); j++) {
-        element tempelm = temprung.elements.get(j);
-        tempelm.type = elems[j];
-      }
+    if (i == numberofrungs+1) {
+      numberofcoils = int(tempstr);
+      coilstartline = i+1;
+      coilendline = (coilstartline+numberofcoils*3)-1;
+      inputstartline = coilendline+1;
+      inputendline = (inputstartline+4*8)-1;
     }
-    println("Done");
+    if ((i == inputstartline+(4*inputindex)+2)) {
+      inputattached[inputindex] = int(tempstr);
+      inputindex++;
+    }
   }
+  //SETUP RUNGS
+  for (int i = 1; i <= numberofrungs; i++) {
+    rungs.add(new rung(i-1));
+  }
+  //SETUP ELEMENTS
+  for (int i = 0; i < loadfile.length-1; i++) {
+    String tempstr = loadfile[i];
+    if ((i > 0) & (i < numberofrungs)) {
+      rung temprung = rungs.get(i-1);
+      elemtype = split(tempstr,":");
+      for (int j = 0; j < elemtype.length; j++) {
+        element tempelem = temprung.elements.get(j);
+        tempelem.type = int(elemtype[j]);
+        
+      }
+    }
+  }
+  //SETUP COILS
+  
 }
 
 void mouseWheel(MouseEvent event) {
