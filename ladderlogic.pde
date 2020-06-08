@@ -1,6 +1,6 @@
-float version = 4.0;
+float version = 4.1;
 /*
-  Ladder Logic Simulator V4.0
+  Ladder Logic Simulator V4.1
  June 2020
  By: Kelly Jellison - kelly.jellison@gmail.com
  
@@ -16,6 +16,7 @@ float version = 4.0;
  V3.4 added input labels
  V3.5 fixed some label issues, added cross and vertical, removed scroll buttons(use mousewheel)
  V4.0 added simple save load capabilities
+ V4.1 finished simple save load capabilities, press s to save l to load, needs a more user friendly interface
  
  TODO:
  Outputs - "Y" Output indicators, able to attach to a coil to see its state at all times
@@ -217,7 +218,7 @@ void draw() {
 }
 
 void saveState() {
-  String filename = ("test.txt");
+  String filename = ("data/test.txt");
   savefile = createWriter(filename);
   //GET SETUP DATA
   int numberofrungs = rungs.size();
@@ -257,7 +258,7 @@ void saveState() {
         for (int k = 0; k < tempelem.attachedelements.size(); k++) {
           element tempatt = tempelem.attachedelements.get(k);
           if (k < tempelem.attachedelements.size()-1) {
-            savefile.print(str(tempatt.rungloc)+":"+str(tempatt.elementpos)+"-");
+            savefile.print(str(tempatt.rungloc)+":"+str(tempatt.elementpos)+":");
           }
           if (k == tempelem.attachedelements.size()-1) {
             savefile.println(str(tempatt.rungloc)+":"+str(tempatt.elementpos));
@@ -278,7 +279,11 @@ void saveState() {
     savefile.println(numberofattachedinp);
     for (int j = 0; j < numberofattachedinp; j++) {
       element attelem = tempbut.attachedelements.get(j);
-      savefile.println(str(attelem.rungloc)+":"+str(attelem.elementpos));
+      if (j < numberofattachedinp-1) {
+        savefile.print(str(attelem.rungloc)+":"+str(attelem.elementpos)+":");
+      } else {
+        savefile.println(str(attelem.rungloc)+":"+str(attelem.elementpos));
+      }
     }
     if (numberofattachedinp == 0) {
       savefile.println("0");
@@ -289,6 +294,7 @@ void saveState() {
 }
 
 void loadState() {
+  clearEverything();
   rungs.clear();
   String[] loadfile = loadStrings("test.txt");
   int numberofrungs = 0;
@@ -300,6 +306,9 @@ void loadState() {
   int inputindex = 0;
   int[] inputattached = new int[8];
   String[] elemtype = new String[maxelements];
+  String[] coil = new String[2];
+  String[] coilatt = new String[0];
+  String[] inputatt = new String[0];
   //GET SETUP DATA
   for (int i = 0; i < loadfile.length-1; i++) {
     String tempstr = loadfile[i];
@@ -325,18 +334,56 @@ void loadState() {
   //SETUP ELEMENTS
   for (int i = 0; i < loadfile.length-1; i++) {
     String tempstr = loadfile[i];
-    if ((i > 0) & (i < numberofrungs)) {
+    if ((i > 0) & (i <= numberofrungs)) {
       rung temprung = rungs.get(i-1);
       elemtype = split(tempstr,":");
       for (int j = 0; j < elemtype.length; j++) {
         element tempelem = temprung.elements.get(j);
         tempelem.type = int(elemtype[j]);
         
+        
       }
     }
   }
   //SETUP COILS
-  
+  for (int i = coilstartline; i <= coilendline; i=i+3) {
+    String tempstr = loadfile[i];
+    coil = split(tempstr,":");
+    String coillab = loadfile[i+1];
+    String attstr = loadfile[i+2];
+    if (attstr.length() > 1) {
+      coilatt = split(attstr,":");
+    }
+    rung coilrung = rungs.get(int(coil[0]));
+    element coilelem = coilrung.elements.get(int(coil[1]));
+    coilelem.label = coillab;
+    //LOAD COILS
+    if (attstr.length() > 1) {
+      for (int j = 0; j <= coilatt.length/2; j = j+2) {
+        rung attrung = rungs.get(int(coilatt[j]));
+        element attelem = attrung.elements.get(int(coilatt[j+1]));
+        coilelem.attachElement(attelem);
+      }
+    }
+  }
+  //SETUP INPUTS
+  //input number
+  //input label
+  //number of elements attached (inputattached[inputnumber])
+  //element locations (newl
+  for (int i = inputstartline; i <= inputendline; i= i+4) {
+    String linestring = loadfile[i];
+    button input = inputbuttons.get(int(linestring));
+    input.addInputLabel(loadfile[i+1]);
+    if (int(loadfile[i+2]) > 1) {
+      inputatt = split(loadfile[i+3], ":");
+      for (int j = 0; j <= inputatt.length/2; j = j+2) {
+        rung attrung = rungs.get(int(inputatt[j]));
+        element attelem = attrung.elements.get(int(inputatt[j+1]));
+        input.attachElement(attelem);
+      }
+    }
+  }
 }
 
 void mouseWheel(MouseEvent event) {
