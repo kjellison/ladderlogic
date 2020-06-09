@@ -1,8 +1,12 @@
 # ladderlogic
 
-A simple ladder logic simulator I made using "Processing"
+A simple ladder logic simulator I made using "Processing".
+No clever name, really nothing clever about it. Just download Processing and run it or compile with Java for later use.
+All bugs are intended features of the software whether I inteded them or not. The software includes a 10 year no-fix, no-replacement 
+warranty and it even includes a nifty package where you (the user) assumes all liability for damages and losses incurred by using 
+said software. Simply put, use at your own risk. Any complaints can be sent to 1600 Pennsylvania Ave NW, Washington, DC 20500.
 
-To use simply select a position on any rung to modify it. Use the buttons at the bottom to change it to a wire, contact, or coil.
+To use, simply select a position on any rung to modify it. Use the buttons at the bottom to change it to a wire, contact, or coil.
 You can attach the output of a coil to a contact by selecting the desired coil and the contact and clicking the attach button (two inward 
 facing triangles).
 
